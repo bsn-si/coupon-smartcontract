@@ -17,7 +17,7 @@ mod ocex {
     // Coupons list arguments of request/response
     type OptCoupons = [Option<CouponId>; 5];
 
-    /// Result of inserted coupons, and declined
+    /// Result for inserted and declined coupons
     /// when balance is not enough to guarantee payout
     #[derive(Debug, Default, PartialEq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -36,10 +36,10 @@ mod ocex {
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     /// Error types
     pub enum Error {
-        /// Caller is not owner of contract
+        /// Caller is not the owner of the contract
         AccessOwner,
-        /// Contract balance dont have enough
-        /// balance for reserve for new coupon, or payout
+        /// Contract balance doesn't have enough
+        /// liquidity to reserve for a new coupon or payout
         ContractBalanceNotEnough,
         /// Invalid coupon, parse failed
         InvalidParseCoupon,
@@ -60,18 +60,18 @@ mod ocex {
     #[ink(storage)]
     #[derive(SpreadAllocate)]
     pub struct Ocex {
-        // Coupons is addresses with amount of tokens
+        // Coupons are addresses with tokens balances
         coupons: ink_storage::Mapping<CouponId, Balance>,
         // Burned coupons after activation
         burned: ink_storage::Mapping<CouponId, bool>,
-        // Smart-contract owner, by default is contract publisher
+        // Smart-contract owner by default is the contract publisher
         owner: ink_env::AccountId,
-        // Reserved balance payout for coupons
+        // Reserved balance for coupons payout
         reserved: Balance,
     }
 
     impl Ocex {
-        /// You can set contract owner by deploy contract
+        /// You can set a contract owner while deploying the contract
         #[ink(constructor)]
         pub fn new(owner: ink_env::AccountId) -> Self {
             ink_lang::utils::initialize_contract(|contract: &mut Self| {
@@ -80,7 +80,7 @@ mod ocex {
             })
         }
 
-        /// By default owner is contract publisher
+        /// Owner is the contract publisher by default
         #[ink(constructor)]
         pub fn default() -> Self {
             ink_lang::utils::initialize_contract(|contract: &mut Self| {
@@ -90,8 +90,8 @@ mod ocex {
         }
 
         /// Set new `coupon` with declared amount.
-        /// - Accept only if contract have enough balance.
-        /// - Only `owner` can set new `coupon`.
+        /// - Coupon is accepted only if the contract has enough balance.
+        /// - Only the `owner` can set a new `coupon`.
         /// Returns: if added - return `amount`, otherwise return none
         #[ink(message)]
         pub fn add_coupon(&mut self, coupon: CouponId, amount: Balance) -> Result<Balance, Error> {
@@ -107,9 +107,9 @@ mod ocex {
         }
 
         /// Set array `max 5 items` of `coupon` with declared per key.
-        /// - Accept only if contract have enough balance.
-        /// - Only `owner` can set new `coupon`.
-        /// Returns: return struct added & active, and limited not added coupons if balance not enough
+        /// - Accept only if the contract has enough balance.
+        /// - Only the `owner` can set a new `coupon`.
+        /// Returns: returns struct with accepted (added & active) and declined coupons (if balance is not enough)
         #[ink(message)]
         pub fn add_coupons(&mut self, coupons: OptCoupons, amount: Balance) -> Result<CouponsResult, Error> {
             (Self::env().caller() == self.owner)
@@ -150,11 +150,11 @@ mod ocex {
                 .and_then(|(result, _, _, _)| Ok(result))
         }
 
-        /// Activate `coupon` with transfer coupon payout to receiver address.
-        /// Verify by `signature` of `sr25519` where passed `receiver address`
+        /// Activate `coupon` with transfer of appropriate liquidity to a receiver's address.
+        /// Verified by `sr25519` `signature` with `receiver address`
         /// with `contract id` context
         ///
-        /// Returns: boolean success if all is valid
+        /// Returns: boolean success if all valid
         #[ink(message)]
         pub fn activate_coupon(
             &mut self,
@@ -166,7 +166,7 @@ mod ocex {
                 .get(&coupon)
                 .ok_or(Error::InvalidParseCoupon)
                 .and_then(|coupon_amount| {
-                    // check coupons isn't burned
+                    // check that coupons aren't burned
                     self.burned
                         .get(&coupon)
                         .is_none()
@@ -197,7 +197,7 @@ mod ocex {
                         .and_then(|_| Ok(coupon_amount))
                 })
                 .and_then(|coupon_amount| {
-                    // check contract balance is enough for transfer
+                    // check that contract balance is enough for transfer
                     (coupon_amount <= self.env().balance())
                         .then(|| coupon_amount)
                         .ok_or(Error::ContractBalanceNotEnough)
@@ -212,9 +212,9 @@ mod ocex {
                 .and_then(|_| self.burn_coupon(&coupon))
         }
 
-        /// Method for transfer payback not reserved for coupons funds
-        /// back to owner wallet. (for example, if you transferred more funds
-        /// to a smart contract than was necessary for coupons)
+        /// Method for transferring spare balance (not reserved for coupons)
+        /// to owner's wallet. (for example, if you've transferred more funds
+        /// to the smart-contract that was necessary)
         #[ink(message)]
         pub fn payback_not_reserved_funds(&mut self) -> Result<bool, Error> {
             (Self::env().caller() == self.owner)
@@ -230,8 +230,8 @@ mod ocex {
                 .and_then(|_| Ok(true))
         }
 
-        /// Method for burn and payback balance from active coupons.
-        /// Funds unlock from reserved in contract, you can't reactivate burned coupons later.
+        /// Method for disabling and burning registered (but not redeemed) coupons.
+        /// The contract unlocks reserved funds. Burned coupons can't be reactivated later.
         #[ink(message)]
         pub fn burn_coupons(&mut self, coupons: OptCoupons) -> Result<CouponsResult, Error> {
             (Self::env().caller() == self.owner)
@@ -258,8 +258,7 @@ mod ocex {
                 .and_then(|(result, _, _)| Ok(result))
         }
 
-        /// Check for coupon is exists and can payout,
-        /// and return actual coupon amount
+        /// Verification that the coupon is registered and it's value
         #[ink(message)]
         pub fn check_coupon(&self, coupon: CouponId) -> (bool, Balance) {
             self.coupons
@@ -271,9 +270,9 @@ mod ocex {
                 .unwrap_or_else(|| (false, 0))
         }
 
-        /// Getter where owner can know how many funds not reserved for coupons,
-        /// for payback for himself
-        /// Allow called only from contract owner, otherwise return zero
+        /// Get info on spare funds of the contract (not reserved for coupons)
+        /// available for withdrawal
+        /// Allow request only from the contract owner, otherwise return zero
         #[ink(message)]
         pub fn available_balance(&mut self) -> Balance {
             (Self::env().caller() == self.owner)
@@ -299,7 +298,7 @@ mod ocex {
                 .then(|| true)
                 .ok_or(Error::CouponAlreadyExists)
                 .and_then(|_| {
-                    // insert new coupon, in storage
+                    // insert new coupon to the storage
                     self.coupons.insert(coupon, &amount);
                     // reserve balance for payout
                     self.reserved += amount;
@@ -316,7 +315,7 @@ mod ocex {
                 .and_then(|amount| {
                     // mark coupon as burned
                     self.burned.insert(&coupon, &true);
-                    // remove from payout reserve
+                    // cancellation of funds reservation
                     self.reserved -= amount;
 
                     Ok(true)
@@ -338,8 +337,8 @@ mod ocex {
         use ink_lang as ink;
 
         #[ink::test]
-        // Simple check how owner can insert coupon with amount
-        // And how after that user can activate his coupon with coupon secret key
+        // Simple check for coupon insertion
+        // And coupon activation with it's secret key
         fn insert_coupon_activation() {
             let accounts = default_accounts();
 
@@ -347,20 +346,20 @@ mod ocex {
             let contract_balance = 1000;
             let mut contract = create_contract(contract_balance);
 
-            // setup sender, (by default `alice` also publisher and can add coupons)
+            // setup sender (by default `alice` also publisher and can add coupons)
             set_sender(accounts.alice);
 
             // setup coupon
             let (coupon_one, coupon_signer) = get_coupon();
             let coupon_amount: u128 = 500;
 
-            // adding one coupon, with target amount
+            // adding one coupon with target amount
             assert_eq!(
                 contract.add_coupon(coupon_one.clone(), coupon_amount),
                 Ok(coupon_amount)
             );
 
-            // Check funds is reserved
+            // Check funds are reserved
             set_sender(accounts.alice);
             assert_eq!(contract.available_balance(), 500);
 
@@ -386,11 +385,11 @@ mod ocex {
             // Coupon activated - amount transfered to caller
             assert_eq!(get_balance(accounts.eve), 500);
 
-            // Check funds reserved funds free, and have payback
+            // Check available funds (not reserved) and withdraw
             set_sender(accounts.alice);
             assert_eq!(contract.available_balance(), 500);
 
-            // payback rest of funds back to owner
+            // transfer the rest of funds back to the owner
             assert_eq!(contract.payback_not_reserved_funds(), Ok(true));
         }
 
@@ -417,8 +416,8 @@ mod ocex {
                 Some(accounts.bob),
             ];
 
-            // insert many coupons, reservation list of coupons
-            // more than reserved in the contract
+            // insert multiple coupons with total amount
+            // that exceeds the contract spare liquidity
             assert_eq!(
                 contract.add_coupons(test_coupons, coupon_amount),
                 Ok(CouponsResult {
@@ -427,7 +426,7 @@ mod ocex {
                 })
             );
 
-            // Check funds is reserved, and dont have payback
+            // Check that funds are reserved and withdrawal is restricted
             assert_eq!(contract.available_balance(), 0);
 
             // Burn inserted coupons
@@ -448,7 +447,7 @@ mod ocex {
             set_sender(accounts.alice);
             set_balance(contract_id(), initial_balance);
 
-            // Alice is publisher, and owner by default
+            // Alice is the publisher and owner by default
             Ocex::default()
         }
 
