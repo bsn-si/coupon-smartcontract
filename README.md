@@ -50,6 +50,12 @@ cargo +nightly test --features=test
 cargo +nightly contract build
 ```
 
+### Resolve common errors
+You may encounter compilation or optimization errors in wasm builds.
+Build tested on `nightly-2022-03-14-x86_64-unknown-linux-gnu`, if you have compilation errors try changing the toolkit and compiler version to the specified one.
+
+In case you get a compilation error during the wasm optimization step, make sure you have [binaryen](https://github.com/WebAssembly/binaryen) installed.
+
 ### Build signature helper
 Simple cli tool for making coupon redemption signature. Set a contract address, coupon secret key, and funds receiver address. 
 ```bash

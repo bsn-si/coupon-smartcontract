@@ -441,6 +441,34 @@ mod ocex {
             assert_eq!(contract.available_balance(), 1000);
         }
 
+        #[ink::test]
+        fn check_transfer_ownership() {
+            let accounts = default_accounts();
+
+            // setup contract
+            let contract_balance = 1000;
+            let mut contract = create_contract(contract_balance);
+
+            // setup sender, (by default `alice` also publisher and can add coupons)
+            set_sender(accounts.alice);
+            assert_eq!(contract.owner, accounts.alice);
+            
+            // Transfer ownership to bob
+            contract.transfer_ownership(accounts.bob);
+            assert_eq!(contract.owner, accounts.bob);
+
+            // try payback rest funds from old owner
+            assert_eq!(contract.payback_not_reserved_funds(), Err(Error::AccessOwner));
+
+            // try payback rest funds from new owner
+            set_balance(accounts.bob, 0);
+            set_sender(accounts.bob);
+    
+            assert_eq!(contract.payback_not_reserved_funds(), Ok(true));
+            assert_eq!(get_balance(accounts.bob), 1000);
+            assert_eq!(contract.available_balance(), 0);
+        }
+
         fn create_contract(initial_balance: Balance) -> Ocex {
             let accounts = default_accounts();
 
