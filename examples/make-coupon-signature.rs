@@ -14,6 +14,9 @@ struct Args {
 
     #[clap(long, help = "Receiver address SS58")]
     receiver: String,
+
+    #[clap(long, help = "Output only hex signature")]
+    short: bool
 }
 
 #[derive(Debug)]
@@ -46,11 +49,15 @@ fn main() -> Result<(), Error> {
     let signature = keypair.sign(context.bytes(receiver_address_bytes));
     let hex_signature = hex::encode(signature.to_bytes());
 
-    println!("---------------------------------------");
-    println!("Contract Address: {:}", args.contract);
-    println!("Payout Receiver: {:}", args.receiver);
-    println!("Coupon Secret Key: {:}", args.coupon);
-    println!("Signature: 0x{:}", hex_signature);
+    if args.short {
+        println!("0x{:}", hex_signature);
+    } else {
+        println!("---------------------------------------");
+        println!("Contract Address: {:}", args.contract);
+        println!("Payout Receiver: {:}", args.receiver);
+        println!("Coupon Secret Key: {:}", args.coupon);
+        println!("Signature: 0x{:}", hex_signature);
+    }
 
     Ok(())
 }

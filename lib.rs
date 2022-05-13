@@ -454,7 +454,7 @@ mod ocex {
             assert_eq!(contract.owner, accounts.alice);
             
             // Transfer ownership to bob
-            contract.transfer_ownership(accounts.bob);
+            assert_eq!(contract.transfer_ownership(accounts.bob), Ok(true));
             assert_eq!(contract.owner, accounts.bob);
 
             // try payback rest funds from old owner
