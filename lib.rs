@@ -281,6 +281,7 @@ mod ocex {
         }
 
         /// Transfer contract ownership to another user
+        #[ink(message)]
         pub fn transfer_ownership(&mut self, account: ink_env::AccountId) -> Result<bool, Error> {
             (Self::env().caller() == self.owner)
                 .then(|| {
