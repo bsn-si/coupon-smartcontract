@@ -52,7 +52,13 @@ cargo +nightly contract build
 
 ### Resolve common errors
 You may encounter compilation or optimization errors in wasm builds.
-Build tested on `nightly-2022-03-14-x86_64-unknown-linux-gnu` toolchain, with `rustc 1.62.0-nightly (e85edd9a8 2022-04-28)` version, if you have compilation errors try changing the toolkit and compiler version to the specified one.
+Build tested on `nightly-2022-05-18` toolchain, with `rustc 1.63.0-nightly (4c5f6e627 2022-05-17)` version, if you have compilation errors try changing the toolkit and compiler version to the specified one. Also you need `wasm` target and `dylint`. For install specified toolchain & targets run:
+
+``` bash
+rustup toolchain install nightly-2022-05-18
+rustup target add wasm32-unknown-unknown
+cargo install cargo-dylint
+```
 
 In case you get a compilation error during the wasm optimization step, make sure you have [binaryen](https://github.com/WebAssembly/binaryen) installed.
 
