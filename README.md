@@ -1,7 +1,3 @@
-> 💀 This is a **Work in Progress**.  
-> Current status: Common PoC data storage and methods available. Partially tested.   
-> **Use at your own risk**.
-
 <h1 align="center">
     🎟️ ✨ OCEX 🎁 👛
 </h1>
