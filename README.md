@@ -111,4 +111,4 @@ Secret Key URI `//Bob` is account:
 
 ## License
 
-[Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) © Bela Supernova ([bsn.si](https://bsn.si))
+[Apache License 2.0](https://github.com/bsn-si/ocex-smartcontract/blob/main/LICENSE) © Bela Supernova ([bsn.si](https://bsn.si))
