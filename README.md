@@ -105,6 +105,12 @@ Secret Key URI `//Bob` is account:
 - Now call `activateCoupon` method, set the selected receiver, select coupon `Bob` and set the signature from the previous command.
 - `Execute` in Polkadot Portal UI and congrats! Funds were transferred to the receiver's account.
 
+## Related repos
+- [Menagement tools with CLI](https://github.com/bsn-si/ocex-cli)
+- [Simple coupon activation dApp](https://github.com/bsn-si/ocex-activation)
+- [OCEX smart contract API](https://github.com/bsn-si/ocex-api)
+- [coupon signature lib](https://github.com/bsn-si/ocex-coupon-signature)
+
 ## License
 
 [Apache License 2.0](https://github.com/bsn-si/ocex-smartcontract/blob/main/LICENSE) © Bela Supernova ([bsn.si](https://bsn.si))
