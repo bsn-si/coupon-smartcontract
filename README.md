@@ -46,6 +46,9 @@ cargo +nightly test --features=test
 cargo +nightly contract build
 ```
 
+### Video guide
+Video guide link: [![mq1](https://user-images.githubusercontent.com/98888366/172255802-217fb893-4922-4901-8a4e-2396e8aa59a9.jpg)](https://youtu.be/_paGuN7VGl8)
+
 ### Resolve common errors
 You may encounter compilation or optimization errors in wasm builds.
 Build tested on `nightly-2022-05-18` toolchain, with `rustc 1.63.0-nightly (4c5f6e627 2022-05-17)` version, if you have compilation errors try changing the toolkit and compiler version to the specified one. Also you need `wasm` target and `dylint`. For install specified toolchain & targets run:
