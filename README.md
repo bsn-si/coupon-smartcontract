@@ -46,15 +46,6 @@ cargo +nightly test --features=test
 cargo +nightly contract build
 ```
 
-### Building in Docker
-If you have problems with the standard build, or don't want to install the rust toolchain in your environment, you can build the contract in docker. Enter to source code dir, and run this for contract build and for copy to dir in your system.
-
-``` bash
-docker build -t ocex-contract .
-docker create -ti --name ocex ocex-contract bash
-docker cp ocex:/contract/target/ink/ocex.contract ~/ocex.contract
-```
-
 ### Resolve common errors
 You may encounter compilation or optimization errors in wasm builds.
 Build tested on `nightly-2022-05-18` toolchain, with `rustc 1.63.0-nightly (4c5f6e627 2022-05-17)` version, if you have compilation errors try changing the toolkit and compiler version to the specified one. Also you need `wasm` target and `dylint`. For install specified toolchain & targets run:
@@ -67,8 +58,17 @@ cargo install cargo-dylint
 
 In case you get a compilation error during the wasm optimization step, make sure you have [binaryen](https://github.com/WebAssembly/binaryen) installed.
 
+### Building in Docker
+As an alternative to the standard build, you can build the smartcontract in a docker. For contract build and copy run the following commands in the source code dir:
+
+``` bash
+docker build -t ocex-contract .
+docker create -ti --name ocex ocex-contract bash
+docker cp ocex:/contract/target/ink/ocex.contract ~/ocex.contract
+```
+
 ### Build signature helper
-Simple cli tool for making coupon redemption signature. Set a contract address, coupon secret key, and funds receiver address. 
+Simple cli tool for making coupon redemption signature. Set a contract address, coupon secret key and funds receiver's address. 
 ```bash
 cargo +nightly build --examples --features=test
 ```
