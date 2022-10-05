@@ -51,10 +51,10 @@ Video guide link: [![mq1](https://user-images.githubusercontent.com/98888366/172
 
 ### Resolve common errors
 You may encounter compilation or optimization errors in wasm builds.
-Build tested on `nightly-2022-05-18` toolchain, with `rustc 1.63.0-nightly (4c5f6e627 2022-05-17)` version, if you have compilation errors try changing the toolkit and compiler version to the specified one. Also you need `wasm` target and `dylint`. For install specified toolchain & targets run:
+Build tested on `nightly-2022-08-08` toolchain, with `rustc 1.64.0 (a55dd71d5 2022-09-19)` version, if you have compilation errors try changing the toolkit and compiler version to the specified one. Also you need `wasm` target and `dylint`. For install specified toolchain & targets run:
 
 ``` bash
-rustup toolchain install nightly-2022-05-18
+rustup toolchain install nightly-2022-08-08
 rustup target add wasm32-unknown-unknown
 cargo install cargo-dylint
 ```

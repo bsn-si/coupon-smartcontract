@@ -3,16 +3,14 @@
 //! Ocex - coupons bounties implemented with Ink! smartcontract
 
 #![cfg_attr(not(feature = "std"), no_std)]
-extern crate core;
-use ink_lang as ink;
 
 #[ink::contract]
 mod ocex {
-    use ink_storage::traits::SpreadAllocate;
     use schnorrkel::{signing_context, PublicKey, Signature};
+    use ink::storage::Mapping;
 
-    use ink_env::AccountId as ReceiverAddress;
-    use ink_env::AccountId as CouponId;
+    type ReceiverAddress = AccountId;
+    type CouponId = AccountId;
 
     // Coupons list arguments of request/response
     type OptCoupons = [Option<CouponId>; 5];
@@ -58,14 +56,13 @@ mod ocex {
     }
 
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
     pub struct Ocex {
         // Coupons are addresses with tokens balances
-        coupons: ink_storage::Mapping<CouponId, Balance>,
+        coupons: Mapping<CouponId, Balance>,
         // Burned coupons after activation
-        burned: ink_storage::Mapping<CouponId, bool>,
+        burned: Mapping<CouponId, bool>,
         // Smart-contract owner by default is the contract publisher
-        owner: ink_env::AccountId,
+        owner: AccountId,
         // Reserved balance for coupons payout
         reserved: Balance,
     }
@@ -73,20 +70,24 @@ mod ocex {
     impl Ocex {
         /// You can set a contract owner while deploying the contract
         #[ink(constructor)]
-        pub fn new(owner: ink_env::AccountId) -> Self {
-            ink_lang::utils::initialize_contract(|contract: &mut Self| {
-                contract.owner = owner;
-                contract.reserved = 0;
-            })
+        pub fn new(owner: AccountId) -> Self {
+            Self {
+                coupons: Mapping::new(),
+                burned: Mapping::new(),
+                reserved: 0,
+                owner,
+            }
         }
 
         /// Owner is the contract publisher by default
         #[ink(constructor)]
         pub fn default() -> Self {
-            ink_lang::utils::initialize_contract(|contract: &mut Self| {
-                contract.owner = Self::env().caller();
-                contract.reserved = 0;
-            })
+            Self {
+                owner: Self::env().caller(),
+                coupons: Mapping::new(),
+                burned: Mapping::new(),
+                reserved: 0,
+            }
         }
 
         /// Set new `coupon` with declared amount.
@@ -282,7 +283,7 @@ mod ocex {
 
         /// Transfer contract ownership to another user
         #[ink(message)]
-        pub fn transfer_ownership(&mut self, account: ink_env::AccountId) -> Result<bool, Error> {
+        pub fn transfer_ownership(&mut self, account: AccountId) -> Result<bool, Error> {
             (Self::env().caller() == self.owner)
                 .then(|| {
                     self.owner = account;
@@ -334,8 +335,7 @@ mod ocex {
         use super::*;
 
         use schnorrkel::{Keypair, MiniSecretKey};
-        use ink_env::AccountId;
-        use ink_lang as ink;
+        use AccountId;
 
         #[ink::test]
         // Simple check for coupon insertion
@@ -481,23 +481,23 @@ mod ocex {
         }
 
         fn contract_id() -> AccountId {
-            ink_env::test::callee::<ink_env::DefaultEnvironment>()
+            ink::env::test::callee::<ink::env::DefaultEnvironment>()
         }
 
         fn set_sender(sender: AccountId) {
-            ink_env::test::set_caller::<ink_env::DefaultEnvironment>(sender);
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(sender);
         }
 
-        fn default_accounts() -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+        fn default_accounts() -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
+            ink::env::test::default_accounts::<ink::env::DefaultEnvironment>()
         }
 
         fn set_balance(account_id: AccountId, balance: Balance) {
-            ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(account_id, balance)
+            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(account_id, balance)
         }
 
         fn get_balance(account_id: AccountId) -> Balance {
-            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(account_id)
+            ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(account_id)
                 .expect("Cannot get account balance")
         }
 
