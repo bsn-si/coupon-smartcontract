@@ -122,6 +122,7 @@ Secret Key URI `//Bob` is account:
 - [Simple coupon activation dApp](https://github.com/bsn-si/ocex-activation)
 - [OCEX smart contract API](https://github.com/bsn-si/ocex-api)
 - [coupon signature lib](https://github.com/bsn-si/ocex-coupon-signature)
+- [ZK delivery evidence CosmWasm! smart contract](https://github.com/bsn-si/figaro-contract) based on the principles of OCEX
 
 ## License
 
