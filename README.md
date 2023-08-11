@@ -118,11 +118,11 @@ Secret Key URI `//Bob` is account:
 - `Execute` in Polkadot Portal UI and congrats! Funds were transferred to the receiver's account.
 
 ## Related repos
-- [Menagement tools with CLI](https://github.com/bsn-si/ocex-cli)
-- [Simple coupon activation dApp](https://github.com/bsn-si/ocex-activation)
-- [OCEX smart contract API](https://github.com/bsn-si/ocex-api)
-- [coupon signature lib](https://github.com/bsn-si/ocex-coupon-signature)
-- [ZK delivery evidence CosmWasm! smart contract](https://github.com/bsn-si/figaro-contract) based on the principles of OCEX
+- OCEX [coupon activation dapp](https://github.com/bsn-si/ocex-activation)
+- OCEX smart contract [API client](https://github.com/bsn-si/ocex-api)
+- OCEX [CLI management tool](https://github.com/bsn-si/ocex-cli)
+- JS/Wasm [library](https://github.com/bsn-si/ocex-coupon-signature) for coupon activation signatures
+- [CosmWasm! smart contract](https://github.com/bsn-si/figaro-contract) for ZK delivery evidence based on the principles of the OCEX
 
 ## License
 
